@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="MegaMindDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="tblCity">
+    <Key>
+      <PropertyRef Name="CityID" />
+    </Key>
+    <Property Name="CityID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StateID" Type="Int64" />
+    <Property Name="CityName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="tblState" Relationship="Self.FK_tblCity_tblState" FromRole="tblCity" ToRole="tblState" />
+    <NavigationProperty Name="tblUserRegistrations" Relationship="Self.FK_tblUserRegistration_tblCity" FromRole="tblCity" ToRole="tblUserRegistration" />
+  </EntityType>
+  <EntityType Name="tblState">
+    <Key>
+      <PropertyRef Name="StateID" />
+    </Key>
+    <Property Name="StateID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StateName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="tblCities" Relationship="Self.FK_tblCity_tblState" FromRole="tblState" ToRole="tblCity" />
+    <NavigationProperty Name="tblUserRegistrations" Relationship="Self.FK_tblUserRegistration_tblState" FromRole="tblState" ToRole="tblUserRegistration" />
+  </EntityType>
+  <EntityType Name="tblUserRegistration">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="Phone" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="StateID" Type="Int64" />
+    <Property Name="CityID" Type="Int64" />
+    <Property Name="CreatedDate" Type="DateTime" Precision="3" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="tblCity" Relationship="Self.FK_tblUserRegistration_tblCity" FromRole="tblUserRegistration" ToRole="tblCity" />
+    <NavigationProperty Name="tblState" Relationship="Self.FK_tblUserRegistration_tblState" FromRole="tblUserRegistration" ToRole="tblState" />
+  </EntityType>
+  <Association Name="FK_tblCity_tblState">
+    <End Role="tblState" Type="Self.tblState" Multiplicity="0..1" />
+    <End Role="tblCity" Type="Self.tblCity" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblState">
+        <PropertyRef Name="StateID" />
+      </Principal>
+      <Dependent Role="tblCity">
+        <PropertyRef Name="StateID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_tblUserRegistration_tblCity">
+    <End Role="tblCity" Type="Self.tblCity" Multiplicity="0..1" />
+    <End Role="tblUserRegistration" Type="Self.tblUserRegistration" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblCity">
+        <PropertyRef Name="CityID" />
+      </Principal>
+      <Dependent Role="tblUserRegistration">
+        <PropertyRef Name="CityID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_tblUserRegistration_tblState">
+    <End Role="tblState" Type="Self.tblState" Multiplicity="0..1" />
+    <End Role="tblUserRegistration" Type="Self.tblUserRegistration" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblState">
+        <PropertyRef Name="StateID" />
+      </Principal>
+      <Dependent Role="tblUserRegistration">
+        <PropertyRef Name="StateID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="MegaMindDBEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="tblCities" EntityType="Self.tblCity" />
+    <EntitySet Name="tblStates" EntityType="Self.tblState" />
+    <EntitySet Name="tblUserRegistrations" EntityType="Self.tblUserRegistration" />
+    <AssociationSet Name="FK_tblCity_tblState" Association="Self.FK_tblCity_tblState">
+      <End Role="tblState" EntitySet="tblStates" />
+      <End Role="tblCity" EntitySet="tblCities" />
+    </AssociationSet>
+    <AssociationSet Name="FK_tblUserRegistration_tblCity" Association="Self.FK_tblUserRegistration_tblCity">
+      <End Role="tblCity" EntitySet="tblCities" />
+      <End Role="tblUserRegistration" EntitySet="tblUserRegistrations" />
+    </AssociationSet>
+    <AssociationSet Name="FK_tblUserRegistration_tblState" Association="Self.FK_tblUserRegistration_tblState">
+      <End Role="tblState" EntitySet="tblStates" />
+      <End Role="tblUserRegistration" EntitySet="tblUserRegistrations" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

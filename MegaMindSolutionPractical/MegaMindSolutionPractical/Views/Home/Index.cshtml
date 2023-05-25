@@ -1,31 +1,403 @@
-﻿@{
-    ViewBag.Title = "Home Page";
-}
+﻿@model MegaMindSolutionPractical.Models.tblUserRegistrationMetadata
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+@{
+    ViewBag.Title = "Mega Minds";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SelectListItem>
+    lstSelectListItem;
+    }
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/mvc/4.0/jquery.validate.unobtrusive.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.5.0/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css" id="theme-styles">
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#saveuser').prop('disabled', true);
+        });
+
+        function hideModal() {
+            $(".field-validation-error").text('');
+            $('#addUserModal').modal('hide');
+            $('.modal-backdrop').remove();
+            $('#addUserModal').removeClass('fade');
+            window.location.href = "/";
+        }
+
+        function showModal() {
+
+            $('#addUserModal').modal('show');
+            $('#addUserModal').removeClass('fade');
+
+        }
+
+        function GetCity(StateID,CityID) {
+            debugger;
+            var procemessage = "<option value='0'> Please wait...</option>";
+            $("#CityID").html(procemessage).show();
+            var url = "/Home/GetCityByState/";
+            
+
+
+
+            $.ajax({
+                url: url,
+                data: { StateID: StateID },
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    //debugger;
+                    var markup = "<option value='0'>Select City</option>";
+                    for (var x = 0; x < data.length; x++) {
+                        if (data[x].Value == CityID) {
+                            markup += "<option selected value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                        }
+                        else {
+                            markup += "<option value=" + data[x].Value + ">" + data[x].Text + "</option>";
+                        }
+
+                    }
+                    $("#CityID").html(markup).show();
+                },
+                error: function (reponse) {
+                    alert("error : " + reponse);
+                }
+            });
+
+        }
+
+        function DeleteConfirmation(id) {
+            debugger
+            Swal.fire({
+                title: "Are You Sure you want to delete this record ?",
+                text: "",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    DeleteData(id);
+                }
+            })
+
+        }
+
+        function DeleteData(Id) {
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/Home/UserDelete",
+                data: JSON.stringify({ "Id": Id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (customer) {
+                    debugger;
+                    if (customer != null) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Record Successfully Deleted',
+                            confirmButtonText: '',
+                            text: '',
+                            footer: '',
+                            showCloseButton: false,
+                            showConfirmButton: false,
+                            timer: "1000"
+                        })
+                            .then(function (result) {
+                                window.location = "/";
+                            })
+                    } else {
+                        alert("Customer record not found.");
+                    }
+                }
+            });
+        }
+
+        function EditData(Id) {
+            debugger;
+            $.ajax({
+                type: "GET",
+                url: "/Home/GetUserData?Id=" + Id,
+                data: JSON.stringify({ "Id": Id }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    debugger;
+                    if (data != null) {
+
+                        var addmodal = $('#addUserModal');
+                        var body = $('.modal-body');
+                        var Id = addmodal.find(body).find('#Id');
+                        var Name = addmodal.find(body).find('#Name');
+                        var Phone = addmodal.find(body).find('#Phone');
+                        var Email = addmodal.find(body).find('#Email');
+                        var StateID = addmodal.find(body).find('#strStateID');
+                        var Address = addmodal.find(body).find('#Address');
+
+                        Id.val(data[0].Id);
+                        Name.val(data[0].Name);
+                        Phone.val(data[0].Phone);
+                        Email.val(data[0].Email);
+                        StateID.val(data[0].StateID);
+                        GetCity(data[0].StateID, data[0].CityID);
+                        Address.val(data[0].Address);
+                        showModal();
+                        //var jsonobj = { "id": data.Id, "name": data.Customer.Name }
+                        // Create function to populate Modal
+                        //PopulateModalJSON(jsonobj);
+                    }
+                }
+            });
+        }
+
+        function AllowAlphabetSpaceKey(e) {
+            // debugger;
+            var code = ('charCode' in e) ? e.charCode : e.keyCode;
+            if (!(code == 32) && // space
+                !(code > 64 && code < 91) && // upper alpha (A-Z)
+                !(code > 96 && code < 123)) { // lower alpha (a-z)
+                e.preventDefault();
+            }
+        }
+
+        function AllowNumberKey(e) {
+            var charCode = (e.which) ? e.which : event.keyCode
+            if (charCode < 48 || charCode > 57) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        $(function () {
+            $('#checkagree').click(function () {
+                debugger;
+                if ($(this).is(':checked')) {
+                    $('#saveuser').removeAttr('disabled');
+
+                } else {
+                    $('#saveuser').attr('disabled', 'disabled');
+                }
+            });
+        });
+
+    </script>
+    <div class="card card-custom">
+        <div class="card-header flex-wrap border-0 pt-6 pb-0">
+            <div class="card-title">
+                <h3 class="card-label">
+                    View User
+                </h3>
+            </div>
+            <div class="card-toolbar">
+                <div class="dropdown dropdown-inline mr-2">
+                    <button type="button" class="btn btn-light-primary font-weight-bolder" data-toggle="modal" onclick="showModal()">
+                        <i class="fa fa-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <table class="datatable datatable-bordered datatable-head-custom table">
+                    <thead>
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Name</th>
+                            <th>Phone No</th>
+                            <th>Email</th>
+                            <th>State Name</th>
+                            <th>City Name</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DSUserData != null)
+                        {
+
+                        foreach (var item in Model.lstUserRegistrationData)
+                        {
+                        var ids = item.Id;
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.SrNo)
+                            </td>
+
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Phone)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Email)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.StateName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CityName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Address)
+                            </td>
+                            <td>
+
+                                <a onclick="EditData(@item.Id)"><i class="fa fa-pen-square" style="cursor: pointer; font-size: 25px; color: #3699ff;margin-right:1%"></i></a>
+                                <a onclick="DeleteConfirmation(@item.Id)"><i class="fa fa-trash" style="cursor: pointer; font-size: 23px; color: #3699ff;"></i></a>
+                                
+                            </td>
+                        </tr>
+                        }
+                        }
+                        else{
+                            
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="divUser">
+            @using (Ajax.BeginForm("InsertUser", "Home", new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "frmUser" }))
+            {
+            @Html.AntiForgeryToken()
+            <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModal" aria-hidden="true">
+                <div class="modal-dialog" role="document" style="max-width:700px;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Add User</h5>
+                        </div>
+                        <div class="modal-body" id="frmUser">
+                            <div class="row">
+                                <div class="col-md-6" style="margin-bottom:2%">
+                                    <label>Name<span style="color:red">*</span></label>
+                                    @Html.HiddenFor(model => model.Id)
+                                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control", @onkeypress = "return AllowAlphabetSpaceKey(event);", @placeholder = "Enter Name", @tabindex = "1",@maxlength="50" })
+                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6" style="margin-bottom:2%">
+                                    <label>Phone No<span style="color:red">*</span></label>
+                                    @Html.TextBoxFor(model => model.Phone, new { @class = "form-control", @onkeypress = "return AllowNumberKey(event);", @placeholder = "Enter Phone No", @tabindex = "2",@maxlength="10" })
+                                    @Html.ValidationMessageFor(model => model.Phone, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6" style="margin-bottom:2%">
+                                    <label>Email<span style="color:red">*</span></label>
+                                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control",  @placeholder = "Enter Email", @tabindex = "3" })
+                                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6" style="margin-bottom:2%">
+                                    <label>State</label>
+                                    @if (Model.IEStateNameDropDownData != null && Model.IEStateNameDropDownData.Count() > 0)
+                                    {
+                                    @Html.DropDownListFor(model => model.strStateID, new SelectList(Model.IEStateNameDropDownData, "Value", "Text"), "Select State Name", new { @class = "form-control select2-show-search", @style = "width: 100%;", tabindex = "4", @onchange = "javascript:GetCity(this.value,null);" });
+                                    }
+                                    else
+                                    {
+                                    lstSelectListItem = new List<SelectListItem>
+                                        () {
+                                        new SelectListItem {
+                                        Text = "No Data Found", Value = "No Data Found"
+                                        }
+                                        };
+                                        @Html.DropDownListFor(model => model.strStateID, lstSelectListItem, "Select State Name", new { @class = "form-control select2-show-search", @style = "width: 100%;", tabindex = "4" });
+                                        }
+                                </div>
+                                <div class="col-md-6" style="margin-bottom:2%">
+                                    <label>City</label>
+                                    @if (Model.IECityNameDropDownData != null && Model.IECityNameDropDownData.Count() > 0)
+                                    {
+                                    @Html.DropDownListFor(model => model.CityID, new SelectList(Model.IECityNameDropDownData, "Value", "Text"), "Select City Name", new { @class = "form-control select2-show-search", @style = "width: 100%;", tabindex = "5"});
+                                    }
+                                    else
+                                    {
+                                    lstSelectListItem = new List<SelectListItem>
+                                        () {
+                                        new SelectListItem {
+                                        Text = "No Data Found", Value = "No Data Found"
+                                        }
+                                        };
+                                        @Html.DropDownListFor(model => model.CityID, lstSelectListItem, "Select City Name", new { @class = "form-control select2-show-search", @style = "width: 100%;", tabindex = "5" });
+                                        }
+                                        @Html.ValidationMessageFor(model => model.CityID, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="col-md-6" style="margin-bottom:2%">
+                                    <label>Address</label>
+                                    @Html.TextAreaFor(model => model.Address, new { @class = "form-control", @placeholder = "Enter Address", @rows = 5, @style = "resize: none;", @tabindex = "6" })
+                                </div>
+                                <div class="col-md-12">
+                                    <input type="checkbox" id="checkagree" value="Agree" /><span style="padding-left:1%">I Agree</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" id="saveuser" value="Save" class="btn btn-primary font-weight-bold" />
+                            <button type="button" class="btn btn-light-danger font-weight-bold" onclick="hideModal()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+
+    @if (Model.Message != null)
+    {
+    if (Model.Message == "Inserted")
+    {
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Record Successfully Inserted',
+            confirmButtonText: '',
+            text: '',
+            footer: '',
+            showCloseButton: false,
+            showConfirmButton: false,
+            timer: "1000"
+        })
+            .then(function (result) {
+                window.location = "/";
+            })
+      
+    </script>
+    }
+    else if (Model.Message == "Updated")
+    {
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Record Successfully Updated',
+            confirmButtonText: '',
+            text: '',
+            footer: '',
+            showCloseButton: false,
+            showConfirmButton: false,
+            timer: "1000"
+        })
+            .then(function (result) {
+                window.location = "/";
+            })
+    </script>
+    }
+    else if (Model.Message == "Deleted")
+    {
+    <script>
+        swal({
+            title: "Record Successfully Deleted!",
+            text: "",
+            type: "success",
+            showConfirmButton: false,
+            timer: "1000"
+        }, function () {
+            window.location = "/";
+        });
+    </script>
+    }
+    }
+

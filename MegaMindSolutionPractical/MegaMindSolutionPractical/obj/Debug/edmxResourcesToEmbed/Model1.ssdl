@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="MegaMindDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="tblCity">
+    <Key>
+      <PropertyRef Name="CityID" />
+    </Key>
+    <Property Name="CityID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="StateID" Type="bigint" />
+    <Property Name="CityName" Type="nvarchar" MaxLength="100" />
+    <Property Name="CreatedDate" Type="datetime" />
+    <Property Name="ModifiedDate" Type="datetime" />
+  </EntityType>
+  <EntityType Name="tblState">
+    <Key>
+      <PropertyRef Name="StateID" />
+    </Key>
+    <Property Name="StateID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="StateName" Type="nvarchar" MaxLength="50" />
+    <Property Name="CreatedDate" Type="datetime" />
+    <Property Name="ModifiedDate" Type="datetime" />
+  </EntityType>
+  <EntityType Name="tblUserRegistration">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" MaxLength="100" />
+    <Property Name="Email" Type="nvarchar" MaxLength="100" />
+    <Property Name="Phone" Type="nvarchar" MaxLength="10" />
+    <Property Name="Address" Type="nvarchar(max)" />
+    <Property Name="StateID" Type="bigint" />
+    <Property Name="CityID" Type="bigint" />
+    <Property Name="CreatedDate" Type="datetime" />
+    <Property Name="ModifiedDate" Type="datetime" />
+  </EntityType>
+  <Association Name="FK_tblCity_tblState">
+    <End Role="tblState" Type="Self.tblState" Multiplicity="0..1" />
+    <End Role="tblCity" Type="Self.tblCity" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblState">
+        <PropertyRef Name="StateID" />
+      </Principal>
+      <Dependent Role="tblCity">
+        <PropertyRef Name="StateID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_tblUserRegistration_tblCity">
+    <End Role="tblCity" Type="Self.tblCity" Multiplicity="0..1" />
+    <End Role="tblUserRegistration" Type="Self.tblUserRegistration" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblCity">
+        <PropertyRef Name="CityID" />
+      </Principal>
+      <Dependent Role="tblUserRegistration">
+        <PropertyRef Name="CityID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_tblUserRegistration_tblState">
+    <End Role="tblState" Type="Self.tblState" Multiplicity="0..1" />
+    <End Role="tblUserRegistration" Type="Self.tblUserRegistration" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="tblState">
+        <PropertyRef Name="StateID" />
+      </Principal>
+      <Dependent Role="tblUserRegistration">
+        <PropertyRef Name="StateID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="MegaMindDBModelStoreContainer">
+    <EntitySet Name="tblCity" EntityType="Self.tblCity" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="tblState" EntityType="Self.tblState" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="tblUserRegistration" EntityType="Self.tblUserRegistration" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_tblCity_tblState" Association="Self.FK_tblCity_tblState">
+      <End Role="tblState" EntitySet="tblState" />
+      <End Role="tblCity" EntitySet="tblCity" />
+    </AssociationSet>
+    <AssociationSet Name="FK_tblUserRegistration_tblCity" Association="Self.FK_tblUserRegistration_tblCity">
+      <End Role="tblCity" EntitySet="tblCity" />
+      <End Role="tblUserRegistration" EntitySet="tblUserRegistration" />
+    </AssociationSet>
+    <AssociationSet Name="FK_tblUserRegistration_tblState" Association="Self.FK_tblUserRegistration_tblState">
+      <End Role="tblState" EntitySet="tblState" />
+      <End Role="tblUserRegistration" EntitySet="tblUserRegistration" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>
