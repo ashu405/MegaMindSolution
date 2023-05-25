@@ -77,3 +77,5 @@ E:\MegaMindSolution\MegaMindSolutionPractical\MegaMindSolutionPractical\obj\Debu
 E:\MegaMindSolution\MegaMindSolutionPractical\MegaMindSolutionPractical\obj\Debug\MegaMindSolutionPractical.csproj.CopyComplete
 E:\MegaMindSolution\MegaMindSolutionPractical\MegaMindSolutionPractical\obj\Debug\MegaMindSolutionPractical.dll
 E:\MegaMindSolution\MegaMindSolutionPractical\MegaMindSolutionPractical\obj\Debug\MegaMindSolutionPractical.pdb
+E:\MegaMindSolution\MegaMindSolutionPractical\MegaMindSolutionPractical\bin\EntityFramework.dll
+E:\MegaMindSolution\MegaMindSolutionPractical\MegaMindSolutionPractical\bin\EntityFramework.xml
